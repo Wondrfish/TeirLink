@@ -1,4 +1,4 @@
-# TeirLink
+# TeirLink [new frontiers]
 
 a Secure Mentor-Mentee Matching App
 This project is a secure mentor-mentee matching platform, inspired by swipe-style interfaces (like Tinder) but designed for classified roles such as cybersecurity, intelligence, and defense.
