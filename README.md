@@ -18,7 +18,7 @@ Formal UI design for professional environments
 Tech Stack
 Backend: Flask (Python)
 
-Database: MongoDB (using PyMongo)
+Database: MongoDB 
 
 Frontend: HTML, CSS, JavaScript
 
