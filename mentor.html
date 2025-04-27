@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Mentors - TierLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Available Mentors</h2>
+    <div class="mentor-grid">
+        {% for mentor in mentors %}
+        <div class="user-card {% if mentor.is_premium %}premium-card{% endif %}">
+            <div class="card-header">
+                <h3>{{ mentor.username }}</h3>
+                <span class="badge">{{ mentor.clearance_level }}</span>
+                {% if mentor.is_premium %}
+                <span class="premium-badge">Premium</span>
+                {% endif %}
+            </div>
+            <div class="card-body {% if mentor.is_premium %}blur-content{% endif %}">
+                <p>{{ mentor.bio }}</p>
+                {% if mentor.expertise %}
+                <div class="tags">
+                    {% for skill in mentor.expertise %}
+                    <span class="tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                {% if mentor.is_premium %}
+                <button class="btn btn-premium">Upgrade to Connect</button>
+                {% else %}
+                <button class="btn btn-primary">Connect</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

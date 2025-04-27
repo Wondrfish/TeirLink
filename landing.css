@@ -1,0 +1,151 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base */
+:root {
+    --primary: #4f46e5;
+    --primary-light: #6366f1;
+    --secondary: #0ea5e9;
+    --bg: #ffffff;
+    --text: #0f172a;
+    --text-light: #64748b;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+/* Layout */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Hero */
+.hero {
+    background: linear-gradient(to right, var(--primary), var(--primary-light));
+    color: white;
+    text-align: center;
+    padding: 80px 20px;
+    margin-bottom: 40px;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    line-height: 1.2;
+}
+
+.hero .tagline {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Options */
+.options-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    padding: 40px 0;
+}
+
+.card {
+    background: var(--bg);
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgb(0 0 0 / 0.1);
+}
+
+.card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    color: var(--text);
+}
+
+.card p {
+    color: var(--text-light);
+    margin-bottom: 24px;
+}
+
+/* Features */
+.features-section {
+    padding: 40px 0;
+}
+
+.features-section h2 {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+}
+
+.feature {
+    background: var(--bg);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgb(0 0 0 / 0.1);
+}
+
+.feature h3 {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+    color: var(--primary);
+}
+
+.feature p {
+    color: var(--text-light);
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 14px 28px;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    width: 100%;
+    text-align: center;
+    border: none;
+}
+
+.btn-success {
+    background: var(--secondary);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .container {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .card, .feature {
+        padding: 24px;
+    }
+}

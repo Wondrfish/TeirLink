@@ -1,0 +1,115 @@
+.matches-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.cards-container {
+    position: relative;
+    height: 450px;
+    margin: 2rem 0;
+}
+
+.card {
+    position: absolute;
+    width: 100%;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-header h3 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.role-badge {
+    background: #e2e8f0;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+}
+
+.expertise-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.tag {
+    background: #f0f0f0;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem;
+    border-top: 1px solid #edf2f7;
+}
+
+.action-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.action-button:hover {
+    transform: scale(1.1);
+}
+
+.decline {
+    background: #ff5757;
+    color: white;
+}
+
+.chat {
+    background: #4299e1;
+    color: white;
+    text-decoration: none;
+}
+
+.accept {
+    background: #68d391;
+    color: white;
+}
+
+.last-message {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #edf2f7;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.no-matches {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

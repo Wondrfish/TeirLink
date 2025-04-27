@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Discover - TeirLink{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/discover.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="tinder">
+    <div class="tinder--cards">
+        {% for match in potential_matches %}
+        <div class="tinder--card" data-user-id="{{ match._id }}" touch-action="none">
+            <div class="card-content">
+                <h3 class="name">{{ match.username }}</h3>
+                <span class="level-badge">{{ match.clearance_level }}</span>
+                
+                <div class="bio">
+                    <p>{{ match.bio }}</p>
+                </div>
+
+                {% if match.expertise %}
+                <div class="expertise-section">
+                    <h4>Expertise</h4>
+                    <div class="tags">
+                        {% for skill in match.expertise %}
+                        <span class="tag">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if match.interests %}
+                <div class="interests-section">
+                    <h4>Interests</h4>
+                    <div class="tags">
+                        {% for interest in match.interests %}
+                        <span class="tag">{{ interest }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="stamp like">MATCH</div>
+            <div class="stamp nope">PASS</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="tinder--buttons">
+        <button class="button-pass"><i class="fa fa-times"></i></button>
+        <button class="button-like"><i class="fa fa-heart"></i></button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script src="{{ url_for('static', filename='js/discover.js') }}"></script>
+
+<script>
+function showMatchNotification(matchedUser) {
+    const notification = document.createElement('div');
+    notification.className = 'match-notification';
+    notification.innerHTML = `
+        <div class="match-content">
+            <h2>It's a Match! 🎉</h2>
+            <p>You've connected with ${matchedUser.username}!</p>
+            <div class="contact-info">
+                <p><i class="fas fa-phone"></i> ${matchedUser.phone}</p>
+            </div>
+            <div class="match-actions">
+                <button onclick="this.closest('.match-notification').remove()" class="btn btn-secondary">Keep Browsing</button>
+                <a href="/matches" class="btn btn-primary">View Matches</a>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(notification);
+}
+</script>
+{% endblock %}

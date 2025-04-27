@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Mentees - TierLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Other Mentees</h2>
+    <div class="mentee-grid">
+        {% for mentee in mentees %}
+        <div class="user-card">
+            <div class="card-header">
+                <h3>{{ mentee.username }}</h3>
+                <span class="badge">{{ mentee.clearance_level }}</span>
+            </div>
+            <div class="card-body">
+                <p>{{ mentee.bio }}</p>
+                {% if mentee.expertise %}
+                <div class="tags">
+                    {% for skill in mentee.expertise %}
+                    <span class="tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary">Connect</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

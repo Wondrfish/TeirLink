@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+    MENTree - Secure Mentorship for High-Security Clearance Professionals
+{% endblock %}
+{% block css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header class="hero">
+        <h1>Welcome to MENTree</h1>
+        <p class="tagline">The exclusive mentorship platform for high-security clearance professionals</p>
+    </header>
+
+    <section class="options-section">
+        <div class="card">
+            <h2>I want to be a Mentee</h2>
+            <p>Connect with verified mentors who understand the unique challenges of high-security work</p>
+            <a href="/mentee" class="btn btn-primary">Find a Mentor</a>
+        </div>
+
+        <div class="card">
+            <h2>I want to be a Mentor</h2>
+            <p>Share your expertise with the next generation of security professionals</p>
+            <a href="/mentor" class="btn btn-success">Become a Mentor</a>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <h2>Why Choose MENTree?</h2>
+        <div class="features-grid">
+            <div class="feature">
+                <h3>Secure Environment</h3>
+                <p>Biometric authentication and end-to-end encryption for all communications</p>
+            </div>
+            <div class="feature">
+                <h3>Verified Professionals</h3>
+                <p>All members are verified high-security clearance holders</p>
+            </div>
+            <div class="feature">
+                <h3>Specialized Guidance</h3>
+                <p>Mentorship focused on security protocols and career advancement</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

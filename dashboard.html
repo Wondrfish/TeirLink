@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TierLink{% endblock %}
+
+{% block css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dash.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard">
+        <!-- User Profile Section -->
+        <section class="profile-section">
+            <div class="profile-card">
+                <h2>Welcome, {{ current_user.username }}!</h2>
+                <div class="profile-info">
+                    <div class="info-item">
+                        <span class="info-label">Role:</span>
+                        <span class="info-value">{{ current_user.role|title }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Clearance Level:</span>
+                        <span class="info-value">{{ current_user.clearance_level|title }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ current_user.email }}</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('profile') }}" class="btn btn-primary">Edit Profile</a>
+            </div>
+        </section>
+
+        <!-- Matches Section -->
+        <section class="matches-section">
+            <h3>Your Matches</h3>
+            {% if matches %}
+                <div class="matches-grid">
+                    {% for match in matches %}
+                        <div class="match-card {% if match.status == 'passed' %}passed{% elif match.status == 'matched' %}matched{% else %}pending{% endif %}"
+                             data-match-id="{{ match._id }}">
+                            <div class="match-header">
+                                <div class="user-info">
+                                    <h4>{{ match.other_user.username }}</h4>
+                                    <span class="role-label">
+                                        {% if current_user.id == match.mentee_id %}
+                                            Mentor
+                                        {% else %}
+                                            Mentee
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <span class="status-badge {{ match.status }}">{{ match.status|title }}</span>
+                            </div>
+                            
+                            <div class="match-info">
+                                <div class="match-details">
+                                    <p class="match-date">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ match.matched_at.strftime('%Y-%m-%d') if match.matched_at else 'Pending' }}
+                                    </p>
+                                    {% if match.status == 'matched' %}
+                                        <div class="match-contact">
+                                            {% if match.other_user.email %}
+                                                <p><i class="fas fa-envelope"></i> {{ match.other_user.email }}</p>
+                                            {% endif %}
+                                            {% if match.other_user.expertise %}
+                                                <div class="expertise-tags">
+                                                    {% for skill in match.other_user.expertise[:3] %}
+                                                        <span class="tag">{{ skill }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        {% if match.last_message %}
+                                            <p class="last-message">
+                                                <i class="fas fa-comment"></i>
+                                                Last message: {{ match.last_message[:50] }}...
+                                            </p>
+                                        {% endif %}
+                                        <div class="match-actions">
+                                            <a href="{{ url_for('chat', match_id=match._id) }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-comment"></i> Chat
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% if match.status != 'matched' %}
+                                    <button class="delete-match" onclick="deleteMatch('{{ match._id }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-matches">
+                    <p>No matches yet. <a href="{{ url_for('discover') }}">Start discovering!</a></p>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="{{ url_for('discover') }}" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Find {{ 'Mentors' if current_user.role == 'mentee' else 'Mentees' }}
+                </a>
+                <a href="{{ url_for('view_matches') }}" class="btn btn-secondary">
+                    <i class="fas fa-users"></i>
+                    View All Matches
+                </a>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+.dashboard {
+    max-width: 1200px;
+    margin: 2rem auto;
+    gap: 2rem;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.profile-info {
+    margin: 1.5rem 0;
+}
+
+.info-item {
+    display: flex;
+    margin: 0.5rem 0;
+    align-items: center;
+}
+
+.info-label {
+    font-weight: bold;
+    width: 150px;
+    color: #666;
+}
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.match-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.match-card:hover {
+    transform: translateY(-2px);
+}
+
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status-badge.matched {
+    background: #48bb78;
+    color: white;
+}
+
+.status-badge.pending {
+    background: #ed8936;
+    color: white;
+}
+
+.status-badge.passed {
+    background: #e53e3e;
+    color: white;
+}
+
+.match-info {
+    color: #666;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.match-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quick-actions {
+    margin-top: 2rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn i {
+    font-size: 1.1em;
+}
+
+.no-matches {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.delete-match {
+    background: none;
+    border: none;
+    color: #e53e3e;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.2s;
+    opacity: 0;
+}
+
+.match-card:hover .delete-match {
+    opacity: 1;
+}
+
+.delete-match:hover {
+    transform: scale(1.1);
+    color: #c53030;
+}
+
+@keyframes slideOut {
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.role-label {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.match-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.expertise-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag {
+    background: #f0f0f0;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: #4a5568;
+}
+
+.match-contact {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.match-contact p {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0;
+}
+
+.match-actions {
+    margin-top: 1rem;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.matched .match-info {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.matched .match-details {
+    width: 100%;
+}
+</style>
+
+<script>
+function deleteMatch(matchId) {
+    if (!confirm('Are you sure you want to delete this match?')) {
+        return;
+    }
+
+    fetch(`/api/matches/${matchId}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
+            matchCard.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                matchCard.remove();
+                
+                // Check if there are no more matches
+                const remainingMatches = document.querySelectorAll('.match-card');
+                if (remainingMatches.length === 0) {
+                    const matchesGrid = document.querySelector('.matches-grid');
+                    matchesGrid.innerHTML = `
+                        <div class="no-matches">
+                            <p>No matches yet. <a href="{{ url_for('discover') }}">Start discovering!</a></p>
+                        </div>
+                    `;
+                }
+            }, 300);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to delete match. Please try again.');
+    });
+}
+</script>
+{% endblock %}

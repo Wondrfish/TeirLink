@@ -1,0 +1,297 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from pymongo import MongoClientther_user.username }} - TierLink{% endblock %}
+from bson.objectid import ObjectId
+import bcryptent %}
+import oss="container">
+from dotenv import load_dotenv">
+from datetime import datetime, timedelta
+import randoma href="{{ url_for('dashboard') }}" class="back-button">
+from flask_wtf.csrf import CSRFProtect-left"></i> Back to Dashboard
+from cryptography.fernet import Fernet
+import secretsiv class="chat-user-info">
+from flask_limiter import Limiter.username }}</h3>
+from flask_limiter.util import get_remote_addresslabel }}</span>
+            </div>
+# Load environment variables
+load_dotenv()
+        <div class="chat-messages" id="chatMessages">
+app = Flask(__name__)ssage in messages %}
+app.config.update(iv class="message {% if message.sender_id == current_user_id %}sent{% else %}received{% endif %}">
+    SECRET_KEY=secrets.token_urlsafe(32),ontent">{{ message.content }}</div>
+    SESSION_COOKIE_SECURE=True,"message-time">{{ message.created_at.strftime('%I:%M %p') }}</div>
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=timedelta(minutes=30),
+    WTF_CSRF_TIME_LIMIT=3600,es yet. Start the conversation!
+    WTF_CSRF_SSL_STRICT=True
+)           {% endfor %}
+        </div>
+# Initialize CSRF protection
+csrf = CSRFProtect(app)t-input">
+            <textarea 
+# Generate encryption key for AES-256
+encryption_key = Fernet.generate_key() message... (Press Enter to send, Shift+Enter for new line)" 
+cipher_suite = Fernet(encryption_key)
+                autofocus></textarea>
+# MongoDB setup - using MongoDB Atlasage()" class="btn btn-primary">
+def get_database():class="fas fa-paper-plane"></i>
+    try:    </button>
+        # Connection timeout set to 5000 milliseconds (5 seconds)
+        client = MongoClient(
+            'mongodb+srv://ajanimjohnson9:supertf123@m-tree.ecfxwa9.mongodb.net/mentree?retryWrites=true&w=majority',
+            serverSelectionTimeoutMS=5000,
+            connectTimeoutMS=5000,
+            retryWrites=True
+        )idth: 800px;
+        in: 2rem auto;
+        # Test the connection
+        client.admin.command('ping')
+        print("Successfully connected to MongoDB Atlas!")
+        return client.mentree
+    except Exception as e:;
+        print(f"Error connecting to MongoDB Atlas: {e}")
+        print("Attempting to connect to local MongoDB...")
+        try:
+            # Fallback to local MongoDB
+            client = MongoClient('mongodb://localhost:27017/', 
+                               serverSelectionTimeoutMS=5000)
+            client.admin.command('ping')
+            print("Connected to local MongoDB")
+            return client.mentree
+        except Exception as local_error:
+            print(f"Error connecting to local MongoDB: {local_error}")
+            print("Please ensure either MongoDB Atlas or local MongoDB is accessible")
+            exit(1)
+    text-decoration: none;
+# Initialize database and collections
+db = get_database()nter;
+users = db.users
+matches_collection = db.matches
+preferences = db.preferences
+messages = db.messages
+    flex-grow: 1;
+# Flask-Login setup
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+    gap: 0.5rem;
+class User(UserMixin):#f7fafc;
+    def __init__(self, user_data):
+        self.id = str(user_data['_id'])
+        self.username = user_data['username']
+        self.email = user_data['email']
+        self.clearance_level = user_data.get('clearance_level', 'basic')
+        self.role = user_data.get('role', 'mentee')  # 'mentee' or 'mentor'
+        self.bio = user_data.get('bio', '')
+        self.expertise = user_data.get('expertise', [])
+        self.interests = user_data.get('interests', [])
+.message.sent {
+@login_manager.user_loader
+def load_user(user_id):4299e1;
+    user_data = users.find_one({'_id': ObjectId(user_id)})
+    if user_data:-right-radius: 0.25rem;
+        return User(user_data)
+    return None
+.message.received {
+@app.context_processortart;
+def utility_processor():2e8f0;
+    return {2d3748;
+        'now': datetime.utcnow().25rem;
+    }
+
+@app.route("/")t {
+def index():ottom: 0.25rem;
+    return render_template("index.html")
+}
+def encrypt_data(data):
+    """Encrypt sensitive data using AES-256"""
+    return cipher_suite.encrypt(data.encode())
+    opacity: 0.8;
+def decrypt_data(encrypted_data):
+    """Decrypt data encrypted with AES-256"""
+    return cipher_suite.decrypt(encrypted_data).decode()
+    padding: 1rem;
+limiter = Limiter(x solid #e2e8f0;
+    app=app, grid;
+    key_func=get_remote_address,uto;
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
+
+@app.route("/login", methods=['GET', 'POST'])
+@limiter.limit("5 per minute")  # Prevent brute force
+def login():1px solid #e2e8f0;
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Encrypt sensitive data before storing/comparing
+        encrypted_password = encrypt_data(password)
+        ht: 42px;
+        user_data = users.find_one({'username': username})
+        if user_data and bcrypt.checkpw(password.encode('utf-8'), user_data['password']):
+            user = User(user_data)
+            login_user(user)
+            content: center;
+            # Set secure session
+            session.permanent = True
+            return redirect(url_for('index'))
+        -align: center;
+        flash('Invalid username or password')
+    return render_template('login.html')
+}
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')// Get CSRF token
+        password = request.form.get('password')
+        clearance_level = request.form.get('clearance_level', 'basic')
+         loadMessages() {
+        if users.find_one({'username': username}):
+            flash('Username already exists')
+            return redirect(url_for('register'))
+                throw new Error('Network response was not ok');
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        user_data = {sponse.json();
+            'username': username,
+            'email': email,
+            'password': hashed_password,t.getElementById('chatMessages');
+            'clearance_level': clearance_levelssages.scrollHeight - chatMessages.scrollTop === chatMessages.clientHeight;
+        }   
+        users.insert_one(user_data)= messages.map(message => {
+                const isSent = message.sender_id === '{{ current_user_id }}';
+        flash('Registration successful! Please login.')t).toLocaleTimeString([], { 
+        return redirect(url_for('login'))
+    return render_template('register.html')
+                });
+@app.route("/logout")n `
+@login_required     <div class="message ${isSent ? 'sent' : 'received'}">
+def logout():           <div class="message-content">${message.content}</div>
+    logout_user()       <div class="message-time">${time}</div>
+    return redirect(url_for('index'))
+                `;
+@app.route("/profile", methods=['GET', 'POST'])
+@login_required
+def profile(): Only auto-scroll if already at bottom or first load
+    if request.method == 'POST':tom || isFirstLoad) {
+        # Update user profilescrollTop = chatMessages.scrollHeight;
+        users.update_one(ad = false;
+            {'_id': ObjectId(current_user.id)},
+            {'$set': {
+                'bio': request.form.get('bio'),
+                'expertise': request.form.getlist('expertise'),
+                'interests': request.form.getlist('interests'),error
+                'role': request.form.get('role'),
+                'linkedin': request.form.get('linkedin'),
+                'github': request.form.get('github')
+            }}essage() {
+        ) input = document.getElementById('messageInput');
+        flash('Profile updated successfully!')
+        return redirect(url_for('profile'))
+    
+    user_data = users.find_one({'_id': ObjectId(current_user.id)})
+    return render_template('profile.html', user=user_data)
+    fetch('/api/messages/send', {
+@app.route("/matches"),
+@login_required: {
+def view_matches():t-Type': 'application/json',
+    pipeline = [SRFToken': csrfToken  // Add CSRF token to headers
+        {,
+            '$match': {ngify({
+                '$or': [tchId,
+                    {'mentee_id': ObjectId(current_user.id)},
+                    {'mentor_id': ObjectId(current_user.id)}
+                ]
+            }ponse => {
+        }, (!response.ok) {
+        {   throw new Error('Network response was not ok');
+            '$lookup': {
+                'from': 'users',
+                'localField': 'mentor_id',
+                'foreignField': '_id',
+                'as': 'mentor'uccess') {
+            }nput.value = '';
+        },  loadMessages();
+        {   
+            '$lookup': {r_user.username }}'.startsWith('Mock')) {
+                'from': 'users',ockResponse, 2000);
+                'localField': 'mentee_id',
+                'foreignField': '_id',
+                'as': 'mentee'
+            }ror => {
+        },nsole.error('Error sending message:', error);
+        {lert('Failed to send message. Please try again.');
+            '$unwind': '$mentor'
+        },ly(() => {
+        {nput.disabled = false;
+            '$unwind': '$mentee'
+        },
+        {
+            '$addFields': {
+                'other_user': {
+                    '$cond': {
+                        'if': {'$eq': ['$mentee_id', ObjectId(current_user.id)]},
+                        'then': '$mentor', experience...",
+                        'else': '$mentee'e insights...",
+                    }d starting with the basics and then moving to more advanced topics.",
+                } considered trying a different approach?",
+            }'s exactly what I was thinking! Let's explore that further.",
+        },hat specific challenges are you facing with this?",
+        {I can definitely help you with that. Here's what I suggest...",
+            '$sort': {'matched_at': -1}ller, manageable steps.",
+        }Based on your interests, I think you might also enjoy learning about..."
+    ];
+    
+    try:t response = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+        matches = list(matches_collection.aggregate(pipeline))
+        h('/api/messages/send', {
+        # Process matches
+        for match in matches:
+            # Convert ObjectIds to stringsson',
+            match['_id'] = str(match['_id']) CSRF token to headers
+            match['mentor_id'] = str(match['mentor_id'])
+            match['mentee_id'] = str(match['mentee_id'])
+            match['mentor']['_id'] = str(match['mentor']['_id'])
+            match['mentee']['_id'] = str(match['mentee']['_id'])
+            match['other_user']['_id'] = str(match['other_user']['_id'])
+            
+            # Get last message
+            last_message = messages.find_one(
+                {'match_id': ObjectId(match['_id'])}, response:', error));
+                sort=[('created_at', -1)]
+            )
+            match['last_message'] = last_message['content'] if last_message else None
+document.getElementById('messageInput').addEventListener('keydown', function(e) {
+            # Ensure status existsiftKey) {
+            if 'status' not in match:
+                match['status'] = 'pending'
+    }
+        return render_template('matches.html', matches=matches)
+    except Exception as e:
+        print(f"Error in view_matches: {str(e)}")
+        return render_template('matches.html', matches=[])input', function() {
+    this.style.height = 'auto';
+@app.route("/discover") (this.scrollHeight) + 'px';
+@login_required
+def discover():
+    # Get existing matches to exclude theming
+    existing_matches = list(matches_collection.find({
+        '$or': [erval = setInterval(loadMessages, 3000);
+            {'mentee_id': ObjectId(current_user.id)},
+            {'mentor_id': ObjectId(current_user.id)}tor_id': ObjectId(current_user.id)}
+        ]dEventListener('beforeunload', () => {
+    }))lock %}        matched_ids = [str(match.get('mentor_id')) for match in existing_matches] + [str(match.get('mentee_id')) for match in existing_matches]        # Find potential matches (users of opposite role who aren't matched yet)    target_role = 'mentor' if current_user.role == 'mentee' else 'mentee'    potential_matches = list(users.find({        '_id': {'$nin': [ObjectId(id) for id in matched_ids if id]},        'role': target_role,        'clearance_level': current_user.clearance_level  # Match by clearance level    }))    # If no real matches found, create mock users    if len(potential_matches) < 5:        mock_users = []        for i in range(1, 6):            user_id = ObjectId()            mock_user = {                '_id': user_id,                'username': f'Mock{i}',                'clearance_level': current_user.clearance_level,                'bio': f'Expert with {random.randint(2, 15)} years of experience.',                'expertise': random.sample(['Python', 'JavaScript', 'Cybersecurity', 'Data Science', 'AI'], k=3),                'interests': random.sample(['Hiking', 'Reading', 'Gaming', 'Traveling'], k=2),                'role': target_role,                'guaranteed_match': (i == 3),                'email': f'mock{i}@example.com'            }            mock_users.append(mock_user)        potential_matches.extend(mock_users)    # Shuffle but keep guaranteed match in first 10    random.shuffle(potential_matches)    return render_template('discover.html', potential_matches=potential_matches)@app.route("/like/<user_id>", methods=['POST'])@login_requireddef like_user(user_id):    try:        current_time = datetime.utcnow()                # Check if there's a mutual match        existing_match = matches_collection.find_one({            '$or': [                {                    'mentee_id': ObjectId(user_id),                    'mentor_id': ObjectId(current_user.id)                },                {                    'mentee_id': ObjectId(current_user.id),                    'mentor_id': ObjectId(user_id)                }            ]        })                if existing_match:            # Update to matched status            matches_collection.update_one(                {'_id': existing_match['_id']},                {                    '$set': {                        'status': 'matched',                        'matched_at': current_time                    }                }            )                        # Create initial message for mock users            if user_id.startswith('Mock'):                messages.insert_one({                    'match_id': existing_match['_id'],                    'sender_id': ObjectId(user_id),                    'content': "Hi! Thanks for connecting! I'm excited to start our mentorship journey.",                    'created_at': current_time                })                        return jsonify({'status': 'matched'})        else:            # Create new pending match            new_match = {                'mentee_id': ObjectId(current_user.id) if current_user.role == 'mentee' else ObjectId(user_id),                'mentor_id': ObjectId(user_id) if current_user.role == 'mentee' else ObjectId(current_user.id),                'status': 'pending',                'created_at': current_time,                'matched_at': None            }            matches_collection.insert_one(new_match)            return jsonify({'status': 'liked'})                except Exception as e:        print(f"Error in like_user: {str(e)}")        return jsonify({'status': 'error', 'message': str(e)}), 500@app.route("/pass/<user_id>", methods=['POST'])@login_requireddef pass_user(user_id):    current_time = datetime.utcnow()    try:        # Record the pass        new_match = {            'mentee_id': ObjectId(current_user.id) if current_user.role == 'mentee' else ObjectId(user_id),            'mentor_id': ObjectId(user_id) if current_user.role == 'mentee' else ObjectId(current_user.id),            'status': 'passed',            'created_at': current_time,            'updated_at': current_time,            'matched_at': None        }        matches_collection.insert_one(new_match)        return jsonify({'status': 'passed'})    except Exception as e:        print(f"Error in pass_user: {str(e)}")        return jsonify({'status': 'error', 'message': str(e)}), 500@app.route("/dashboard")@login_requireddef dashboard():    pipeline = [        {            '$match': {                '$or': [                    {'mentee_id': ObjectId(current_user.id)},                    {'mentor_id': ObjectId(current_user.id)}                ]            }        },        {            '$lookup': {                'from': 'users',                'localField': 'mentor_id',                'foreignField': '_id',                'as': 'mentor'            }        },        {            '$lookup': {                'from': 'users',                'localField': 'mentee_id',                'foreignField': '_id',                'as': 'mentee'            }        },        {            '$unwind': {                'path': '$mentor',                'preserveNullAndEmptyArrays': True            }        },        {            '$unwind': {                'path': '$mentee',                'preserveNullAndEmptyArrays': True            }        },        {            '$addFields': {                'other_user': {                    '$cond': {                        'if': {'$eq': ['$mentee_id', ObjectId(current_user.id)]},                        'then': '$mentor',                        'else': '$mentee'                    }                }            }        }    ]    try:        matches = list(matches_collection.aggregate(pipeline))        # Process matches safely        processed_matches = []        for match in matches:            try:                # Only process match if it has both mentor and mentee                if 'mentor' in match and 'mentee' in match:                    processed_match = {                        '_id': str(match['_id']),                        'mentee_id': str(match['mentee_id']),                        'mentor_id': str(match['mentor_id']),                        'status': match.get('status', 'pending'),                        'matched_at': match.get('matched_at', match.get('created_at', datetime.utcnow())),                        'mentor': {                            '_id': str(match['mentor']['_id']),                            'username': match['mentor'].get('username', 'Unknown'),                            'email': match['mentor'].get('email', ''),                            'expertise': match['mentor'].get('expertise', [])                        },                        'mentee': {                            '_id': str(match['mentee']['_id']),                            'username': match['mentee'].get('username', 'Unknown'),                            'email': match['mentee'].get('email', ''),                            'expertise': match['mentee'].get('expertise', [])                        }                    }                                        # Set other_user based on current user's role                    if str(current_user.id) == processed_match['mentee_id']:                        processed_match['other_user'] = processed_match['mentor']                    else:                        processed_match['other_user'] = processed_match['mentee']                                        # Get last message                    try:                        last_message = messages.find_one(                            {'match_id': ObjectId(match['_id'])},                            sort=[('created_at', -1)]                        )                        processed_match['last_message'] = last_message['content'] if last_message else None                    except Exception as e:                        print(f"Error fetching last message: {str(e)}")                        processed_match['last_message'] = None                                        processed_matches.append(processed_match)            except Exception as e:                print(f"Error processing match: {str(e)}")                continue        return render_template('dashboard.html',                             matches=processed_matches,                             current_user=current_user)    except Exception as e:        print(f"Error in dashboard: {str(e)}")        return render_template('dashboard.html',                             matches=[],                             current_user=current_user)@app.route('/forgot-password', methods=['GET', 'POST'])def forgot_password():    if request.method == 'POST':        email = request.form.get('email')        # Logic to handle password reset (e.g., send reset email)        flash('If an account with that email exists, a password reset link has been sent.', 'info')        return redirect(url_for('login'))    return render_template('forgot_password.html')@app.route("/mentee")@login_requireddef mentee_view():    # Get all mentees except current user    other_mentees = list(users.find({        'role': 'mentee',        '_id': {'$ne': ObjectId(current_user.id)}    }))    return render_template('mentee.html', mentees=other_mentees)@app.route("/mentor")@login_requireddef mentor_view():    # Get all mentors    all_mentors = list(users.find({'role': 'mentor'}))    # Mark some as premium randomly for demo    for mentor in all_mentors:        mentor['is_premium'] = random.choice([True, False])    return render_template('mentor.html', mentors=all_mentors)@app.route("/api/messages/<match_id>")@login_requireddef get_messages(match_id):    try:        # Verify user is part of the match        match = matches_collection.find_one({            '_id': ObjectId(match_id),            '$or': [                {'mentee_id': ObjectId(current_user.id)},                {'mentor_id': ObjectId(current_user.id)}            ]        })                if not match:            return jsonify({'error': 'Match not found'}), 404                    # Get all messages for this match        chat_messages = list(messages.find({            'match_id': ObjectId(match_id)        }).sort('created_at', 1))                # Convert messages for JSON response        formatted_messages = []        for msg in chat_messages:            formatted_messages.append({                'sender_id': str(msg['sender_id']),                'content': msg['content'],                'created_at': msg['created_at'].isoformat()            })                    return jsonify(formatted_messages)    except Exception as e:        print(f"Error getting messages: {str(e)}")        return jsonify({'error': 'Internal server error'}), 500@app.route("/api/messages/send", methods=['POST'])@login_requireddef send_message():    try:        data = request.json        match_id = data.get('match_id')        content = data.get('content')        mock_sender_id = data.get('mock_sender_id')                if not match_id or not content:            return jsonify({'error': 'Missing required fields'}), 400                # Verify the match exists and user is part of it        match = matches_collection.find_one({            '_id': ObjectId(match_id),            '$or': [                {'mentee_id': ObjectId(current_user.id)},                {'mentor_id': ObjectId(current_user.id)}            ]        })                if not match:            return jsonify({'error': 'Match not found'}), 404        # Create and save the message        message = {            'match_id': ObjectId(match_id),            'sender_id': ObjectId(mock_sender_id) if mock_sender_id else ObjectId(current_user.id),            'content': content,            'created_at': datetime.utcnow()        }                result = messages.insert_one(message)                if result.inserted_id:            return jsonify({'status': 'success'})        else:ccess'})        else:            return jsonify({'error': 'Failed to save message'}), 500                except Exception as e:        print(f"Error sending message: {str(e)}")        return jsonify({'error': 'Internal server error'}), 500@app.route("/api/matches/<match_id>/delete", methods=['DELETE'])@login_requireddef delete_match(match_id):    match = matches_collection.find_one({'_id': ObjectId(match_id)})        if not match:        return jsonify({'status': 'error', 'message': 'Match not found'}), 404            # Only allow deletion of pending or passed matches    if match['status'] == 'matched':        return jsonify({'status': 'error', 'message': 'Cannot delete active matches'}), 403            # Verify the current user is part of the match    if str(match['mentee_id']) != str(current_user.id) and str(match['mentor_id']) != str(current_user.id):        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403        # Delete the match    matches_collection.delete_one({'_id': ObjectId(match_id)})        return jsonify({'status': 'success'})@app.route("/chat/<match_id>")@login_requireddef chat(match_id):    # Get match details directly first    match = matches_collection.find_one({        '_id': ObjectId(match_id)    })        if not match:        flash('Match not found')        return redirect(url_for('dashboard'))    # Get mentor and mentee details    mentor = users.find_one({'_id': match['mentor_id']})    mentee = users.find_one({'_id': match['mentee_id']})        if not mentor or not mentee:        flash('User information not found')        return redirect(url_for('dashboard'))        # Determine other user    if str(current_user.id) == str(match['mentee_id']):        other_user = mentor        role_label = "Mentor"    else:        other_user = mentee        role_label = "Mentee"        # Get chat messages    chat_messages = list(messages.find({        'match_id': ObjectId(match_id)    }).sort('created_at', 1))        # Convert ObjectIds to strings    for msg in chat_messages:        msg['_id'] = str(msg['_id'])        msg['sender_id'] = str(msg['sender_id'])        # Add mock messages if none exist for mock users    if not chat_messages and (        mentor.get('username', '').startswith('Mock') or         mentee.get('username', '').startswith('Mock')    ):        mock_user = mentor if mentor.get('username', '').startswith('Mock') else mentee        current_time = datetime.utcnow()        mock_messages = [            {                'match_id': ObjectId(match_id),                'sender_id': mock_user['_id'],                'content': "Hi! Thanks for connecting! I'm excited to start our mentorship journey.",                'created_at': current_time            },            {                'match_id': ObjectId(match_id),                'sender_id': mock_user['_id'],                'content': "What areas would you like to focus on in our mentorship?",                'created_at': current_time + timedelta(minutes=1)            },            {                'match_id': ObjectId(match_id),                'sender_id': mock_user['_id'],                'content': f"I see you're interested in {', '.join(current_user.expertise[:2] if current_user.expertise else ['technology'])}. I'd love to help you grow in these areas!",                'created_at': current_time + timedelta(minutes=2)            }        ]        messages.insert_many(mock_messages)        chat_messages = mock_messages                # Convert ObjectIds to strings for the new messages        for msg in chat_messages:            msg['_id'] = str(msg['_id'])            msg['sender_id'] = str(msg['sender_id'])        # Convert match ObjectId to string    match['_id'] = str(match['_id'])        return render_template('chat.html',                         match=match,                         other_user=other_user,                         role_label=role_label,                         messages=chat_messages,                         current_user_id=str(current_user.id))# Add this function after your routesdef update_existing_matches():    current_time = datetime.utcnow()    try:        # Update matches without matched_at or status        matches_collection.update_many(            {                '$or': [                    {'matched_at': None},                    {'matched_at': {'$exists': False}},                    {'status': {'$exists': False}}                ]            },            {                '$set': {                    'matched_at': current_time,                    'updated_at': current_time,                    'status': 'pending'                }            }        )        print("Updated existing matches")    except Exception as e:        print(f"Error updating existing matches: {str(e)}")@app.after_requestdef add_security_headers(response):    # Add CSRF token to response headers for AJAX requests    if 'text/html' in response.headers['Content-Type']:        response.headers['X-CSRFToken'] = csrf._get_token()    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'    response.headers['Content-Security-Policy'] = "default-src 'self'"    response.headers['X-Content-Type-Options'] = 'nosniff'
+
+
+
+
+
+
+
+</div>    <!-- Rest of your chat template -->    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">    <!-- Add this hidden input for CSRF token --><div class="chat-container">});    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+</script>    response.headers['X-XSS-Protection'] = '1; mode=block'
+{% endblock %}    return responseif __name__ == "__main__":
+    update_existing_matches()  # Update existing records
+    app.run(debug=True)
